@@ -7,17 +7,16 @@ You can read more about the approach and technical aspects of what's entailed [i
 
 ---
 
-1. [`raw.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/raw.html) — 
+1. [`raw.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/raw.html) — A raw example of something that's kind of painful without object-orientation.
 
-2. [`class.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/class.html) — 
+2. [`class.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/class.html) — The simplest definition of a class, making `raw.html` a little less painful.
 
-3. [`methodsAndAttributes.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/methodsAndAttributes.html) — 
+3. [`methodsAndAttributes.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/methodsAndAttributes.html) — Adding custom methods ('verbs' your objects can do) and attributes ('nouns' your object has).
 
-4. [`defineProperty.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/defineProperty.html) — 
+4. [`defineProperty.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/defineProperty.html) — Adding custom 'getters' (functions which return an attribute) and 'setters' (functions which set an attribute) using `Object.defineProperty`.
 
-5. [`eventCommunication.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/eventCommunication.html) — 
+5. [`eventCommunication.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/eventCommunication.html) — Using custom events to communicate between objects.
 
-6. [`subclassing.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/subclassing.html) — 
+6. [`subclassing.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/subclassing.html) — Composing and combining classes.
 
-7. [`mvc.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/mvc.html) — 
-
+7. [`mvc.html`](https://github.com/dgmde15/Object.Oriented.Gallery/blob/master/mvc.html) — Roughly refactoring our demo to use [the "Model-View-Controller" pattern](http://blog.codinghorror.com/understanding-model-view-controller/)
