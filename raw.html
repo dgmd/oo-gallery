@@ -1,0 +1,64 @@
+<html>
+
+<head>
+    <style>
+    #container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: lightblue;
+    }
+    .ball {
+        width: 50px;
+        height: 50px;
+        border-radius: calc(50px/2);
+        background-color: lightgreen;
+        border: 1px dashed grey;
+        position: absolute;
+        transition: left 0.075s, top 0.075s, background-color 2s;
+        /* Use CSS animations to reduce motion jerk while fading in the background color changes */
+    }
+    </style>
+</head>
+
+<body>
+    <div id='container'>
+        <div id='one' class='ball'></div>
+        <div id='two' class='ball'></div>
+        <div id='three' class='ball'></div>
+        <div id='four' class='ball'></div>
+        <div id='five' class='ball'></div>
+        <div id='six' class='ball'></div>
+        <div id='seven' class='ball'></div>
+        <div id='eight' class='ball'></div>
+        <div id='nine' class='ball'></div>
+        <div id='ten' class='ball'></div>
+    </div>
+    <script>
+    window.addEventListener('load', function(event) { // When the page loads
+        // Grab all the divs
+        var balls = Array.prototype.slice.call(document.getElementsByClassName('ball'));
+
+        balls.forEach(function(ball) { // and for each one
+            ball.style.left = Math.random() * 90 + '%'; // set a random left
+            ball.style.top = Math.random() * 90 + '%'; // and top
+            setInterval(function() {
+                // and then start up a timer which randomly modifies the position
+                ball.style.left = parseFloat(ball.style.left) + (-1 + Math.random() * 2) + '%'
+                ball.style.top = parseFloat(ball.style.top) + (-1 + Math.random() * 2) + '%'
+                if (Math.random() < 1.0 / 500) {
+                    ball.style.backgroundColor = 'rgba(' + [parseInt(Math.random() * 255), parseInt(Math.random() * 255), parseInt(Math.random() * 255), Math.random()].join(',') + ')'
+                }
+            }, 75); // every 75ms
+        });
+
+        document.getElementById('three').style.width = '100px';
+        document.getElementById('three').style.height = '100px';
+        document.getElementById('three').style.borderRadius = parseInt(100/2) + 'px';
+    });
+    </script>
+</body>
+
+</html>

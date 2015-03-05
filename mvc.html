@@ -1,0 +1,169 @@
+<html>
+
+<head>
+    <style>
+    #container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: lightblue;
+    }
+    #container > div {
+        position: absolute;
+    }
+    </style>
+</head>
+
+<body>
+    <div id='container'></div>
+
+    <script>
+    // We'd like a convenient way of having global access to all the shapes we make
+    var shapes = [];
+    </script>
+    <script id='model'>
+    // This is, roughly, our 'model' code— the representation of the Shapes
+    function Ball(radius, x, y) {
+        // Notice we have no CSS styling here; we're just setting variables
+        var instance = this; // grab a pointer to 'this'
+        this.radius = radius; // save our radius
+        this.x = x;
+        this.y = y;
+        this.bg = [instance.rand, instance.rand, instance.rand, Math.random()];
+        this.timestep = parseInt(Math.random() * 500);
+        this.view = document.createElement('div'); // This is the sole place our model connects to the display (our view)
+    };
+
+    Ball.prototype.simulate = function() {
+        // Now we'll 'simulate' instead of 'animate' to emphasize the separation of the view and model
+        var instance = this;
+
+        this.simulateLoop = setInterval(function() { // Create our simulate loop and save a pointer to it in this.simulateLoop
+            // and then start up a timer which randomly modifies the position
+
+            // Notice here we are no longer using custom getters and setters, we're actually changing a simple variable (which we use later to re-render);
+            instance.x += (-1 + Math.random() * 2); // nudge x
+            instance.y += (-1 + Math.random() * 2); // nudge y
+            if (Math.random() < 0.1) {
+                instance.bg = [instance.rand, instance.rand, instance.rand, Math.random()];
+            }
+            instance.addController();
+            instance.render(); // Here, once we finish simulating the changes, we want to render them in our view
+        }, instance.timestep);
+    };
+
+    Ball.prototype.stopSimulating = function() {
+        clearInterval(this.simulateLoop);
+    };
+
+    Object.defineProperty(Ball.prototype, 'rand', {
+        get: function() {
+            return parseInt(Math.random() * 255);
+        }
+    });
+
+    function Square(radius, x, y) {
+        Ball.call(this, radius, x, y);
+    };
+    Square.prototype = Object.create(Ball.prototype);
+    Square.prototype.constructor = Square;
+    </script>
+
+    <script id='view'>
+    Ball.prototype.render = function() {
+        // This is where all our drawing happen
+        var instance = this;
+        instance.view.classList.add('ball'); // Add a class for our convenience
+        this.styling = { // Define a dictionary for the various CSS attributes we want to style
+            width: 2 * this.radius + 'px',
+            height: 2 * this.radius + 'px',
+            borderRadius: this.radius + 'px',
+            left: this.x + '%',
+            top: this.y + '%',
+            backgroundColor: 'rgba(' + this.bg.join(',') + ')',
+            transition: instance.timestep / 1000.0 + 's'
+        };
+
+        Object.keys(instance.styling).forEach(function(key) { // iterate over them and set them
+            instance.view.style[key] = instance.styling[key];
+        });
+
+        document.querySelector('#container').appendChild(instance.view); // add ourselves to the HTML
+    };
+
+    Square.prototype.render = function() {
+        var instance = this;
+        instance.view.classList.add('square'); // Add a class for our convenience
+        this.styling = { // Define a dictionary for the various CSS attributes we want to style
+            width: 2 * this.radius + 'px',
+            height: 2 * this.radius + 'px',
+            borderRadius: '0px',
+            left: this.x + '%',
+            top: this.y + '%',
+            backgroundColor: 'rgba(' + this.bg.join(',') + ')',
+            transition: instance.timestep / 1000.0 + 's'
+        };
+
+        Object.keys(instance.styling).forEach(function(key) { // iterate over them and set them
+            instance.view.style[key] = instance.styling[key];
+        });
+
+        document.querySelector('#container').appendChild(instance.view); // add ourselves to the HTML
+    };
+    </script>
+
+    <script id='controller'>
+    // This is where the logic which is interacting with the user is stored ('the controller') connecting user actions to model changes— notice we don't modify anything in the view directly here
+    Ball.prototype.addController = function() {
+        var instance = this;
+        var hoverHandler = function(event) {
+            var hoverBroadcast = new CustomEvent('shapeHover', {
+                'detail': {
+                    'shape': instance, // transmit the ball object
+                    'bg': instance.bg // and pull out the background, for convenience
+                }
+            });
+
+            // When we mouseover the ball's html, dispatch this event
+            document.dispatchEvent(hoverBroadcast);
+        };
+
+        var clickHandler = function(event) {
+            // Add some functionality so that when we click on it we turn off our loop
+            instance.stopSimulating();
+        };
+
+        // Actually attach the eventListeners
+        this.view.addEventListener('click', clickHandler);
+        this.view.addEventListener('mouseover', hoverHandler);
+    };
+    </script>
+    <script>
+    window.addEventListener('load', function(event) { // When the page loads
+        // Make 10 shapes;
+        for (var i = 0; i < 10; i++) {
+            var radius = Math.random() * 100;
+            var x = Math.random() * 90;
+            var y = Math.random() * 90;
+            // Make a square half the time, a ball the other half
+            var shape = Math.random() < 0.5 ? new Ball(radius, x, y) : new Square(radius, x, y);
+            shapes.push(shape);
+            shape.simulate(); // This is where all the action for a shape begins
+        }
+
+        // This doesn't really have a natural home in MVC as currently written since it isn't M or user interaction (meaning neither V nor C), but it is rather orchestration by the document of an interface to the shape models (their bg)
+        document.addEventListener('shapeHover', function(event) {
+        	// When we receive a shapeHover, change the background color of all the other shapes
+            shapes.forEach(function(shape) {
+                if (shape != event.detail.shape) {
+                    shape.bg = event.detail.bg;
+                }
+            });
+        });
+    });
+    </script>
+</body>
+
+</html>

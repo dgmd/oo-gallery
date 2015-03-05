@@ -1,0 +1,99 @@
+<html>
+
+<head>
+    <style>
+    #container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: lightblue;
+    }
+    .ball {
+        width: 50px;
+        height: 50px;
+        border-radius: calc(50px/2);
+        background-color: lightgreen;
+        border: 1px dashed grey;
+        position: absolute;
+        transition: left 0.075s, top 0.075s, background-color 2s;
+        /* Use CSS animations to reduce motion jerk while fading in the background color changes */
+    }
+    </style>
+</head>
+
+<body>
+    <div id='container'></div>
+    <script>
+    var Ball = function(radius, x, y) {
+    	var instance = this; // grab a pointer to 'this'
+    	this.radius = radius; // save our radius
+
+    	this.html = document.createElement('div'); // create the HTML we'll use
+    	this.html.classList.add('ball'); // add a class to connect to our CSS
+    	var styling = { // Define a dictionary for the various CSS attributes we want to style
+    		width: 2*this.radius + 'px',
+    		height: 2*this.radius + 'px',
+    		borderRadius: this.radius + 'px',
+    		left: x + '%',
+    		top: y + '%',
+    		backgroundColor: 'rgba(' + [
+    			instance.rand(),
+    			instance.rand(),
+    			instance.rand(),
+    			Math.random()
+    		].join(',') + ')'
+    	};
+
+    	Object.keys(styling).forEach(function(key) { // iterate over them and set them
+    		instance.html.style[key] = styling[key];
+    	});
+
+    	document.getElementById('container').appendChild(instance.html); // add ourselves to the HTML
+
+    	this.animate(parseInt(Math.random()*500));
+
+    	this.html.addEventListener('click', function(event) {
+    		// Add some functionality so that when we click on it we turn off our loop
+			instance.stopAnimating();	
+    	});
+    }
+
+    Ball.prototype.animate = function(duration) {
+    	var instance = this;
+		this.html.style.transition = [ // Note that we specify our durations in ms
+			'left', duration/1000 + 's,',
+			'top', duration/1000 + 's'
+		].join(' ');
+    	
+    	this.animateLoop = setInterval(function() { // Create our animate loop and save a pointer to it in this.animateLoop
+                // and then start up a timer which randomly modifies the position
+                instance.html.style.left = parseFloat(instance.html.style.left) + (-1 + Math.random() * 2) + '%'
+                instance.html.style.top = parseFloat(instance.html.style.top) + (-1 + Math.random() * 2) + '%'
+            }, duration);
+    };
+
+    Ball.prototype.stopAnimating = function() {
+    	clearInterval(this.animateLoop);
+    };
+
+    Ball.prototype.rand = function(range) {
+    	// A minor utility function to give us a random integer
+    	if (typeof(range) === 'undefined') {
+    		range = 255;
+    	}
+    	return parseInt(Math.random()*range);
+    };
+
+    var balls = [];
+    window.addEventListener('load', function(event) { // When the page loads
+        // Make 10 balls;
+        for (var i = 0; i < 10; i++) {
+        	balls.push(new Ball(Math.random()*100, Math.random()*90 + '%', Math.random()*90 + '%'));
+        }
+    });
+    </script>
+</body>
+
+</html>
