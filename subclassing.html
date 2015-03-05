@@ -1,0 +1,148 @@
+<html>
+
+<head>
+    <style>
+    #container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: lightblue;
+    }
+    .ball {
+        width: 50px;
+        height: 50px;
+        border-radius: calc(50px/2);
+        background-color: lightgreen;
+        border: 1px dashed grey;
+        position: absolute;
+        transition: left 0.075s, top 0.075s, background-color 2s;
+        /* Use CSS animations to reduce motion jerk while fading in the background color changes */
+    }
+    </style>
+</head>
+
+<body>
+    <div id='container'></div>
+    <script>
+    var Ball = function(radius, x, y) {
+    	var instance = this; // grab a pointer to 'this'
+    	this.radius = radius; // save our radius
+
+    	this.html = document.createElement('div'); // create the HTML we'll use
+    	this.html.classList.add('ball'); // add a class to connect to our CSS
+    	var styling = { // Define a dictionary for the various CSS attributes we want to style
+    		width: 2*this.radius + 'px',
+    		height: 2*this.radius + 'px',
+    		borderRadius: this.radius + 'px',
+    		left: x + '%',
+    		top: y + '%',
+    		backgroundColor: 'rgba(' + [
+    			instance.rand,
+    			instance.rand,
+    			instance.rand,
+    			Math.random()
+    		].join(',') + ')'
+    	};
+
+    	Object.keys(styling).forEach(function(key) { // iterate over them and set them
+    		instance.html.style[key] = styling[key];
+    	});
+
+    	document.getElementById('container').appendChild(instance.html); // add ourselves to the HTML
+
+    	this.animate(parseInt(Math.random()*500));
+
+    	this.html.addEventListener('click', function(event) {
+    		// Add some functionality so that when we click on it we turn off our loop
+			instance.stopAnimating();	
+    	});
+
+    	this.hoverBroadcast = new CustomEvent('shapeHover', { 'detail': {
+    		shape: instance,
+    		bg: instance.bg
+    		}
+    	});
+    	this.html.addEventListener('mouseover', function(event) {
+    		document.dispatchEvent(instance.hoverBroadcast);
+    	});
+    }
+
+    Ball.prototype.animate = function(duration) {
+    	var instance = this;
+		this.html.style.transition = duration/1000.0 + 's';
+    	
+    	this.animateLoop = setInterval(function() { // Create our animate loop and save a pointer to it in this.animateLoop
+                // and then start up a timer which randomly modifies the position
+                instance.x += (-1 + Math.random() * 2); // nudge x
+                instance.y += (-1 + Math.random() * 2); // nudge y
+                if (Math.random() < 0.1) {
+                	instance.bg = [instance.rand, instance.rand, instance.rand, Math.random()];
+                }
+            }, duration);
+    };
+
+    Ball.prototype.stopAnimating = function() {
+    	clearInterval(this.animateLoop);
+    };
+
+    Object.defineProperty(Ball.prototype, 'rand', {
+    	get: function() { return parseInt(Math.random()*255); }
+    });
+
+    Object.defineProperty(Ball.prototype, 'x', { // Custom getter and setter for x
+    	get: function() { return parseFloat(this.html.style.left); },
+    	set: function(newX) { this.html.style.left = newX + '%'; } // Note we're working in %
+    });
+
+    Object.defineProperty(Ball.prototype, 'y', { // Custom getter and setter for y
+    	get: function() { return parseFloat(this.html.style.top); },
+    	set: function(newY) { this.html.style.top = newY + '%'; } // Note we're working in %
+    });
+
+    Object.defineProperty(Ball.prototype, 'bg', { // Custom getter and setter for the background color 
+    	get: function() {
+    		var raw = getComputedStyle(this.html).backgroundColor;
+    		var digitsRegex = /[0-9.]+/g;
+    		var rgbaArray = raw.match(digitsRegex);
+    		if (rgbaArray.length === 4) {
+	    		return rgbaArray;
+    		}
+    		else {
+    			console.log("Error grabbing rgbaArray from", raw);
+    		}
+		},
+    	set: function(rgbaArray) {
+    		this.html.style.backgroundColor = 'rgba(' + rgbaArray.join(',') + ')';
+    	}
+    });
+
+    var Square = function(radius, x, y) {
+    	Ball.call(this, radius, x, y);
+    	this.html.style.borderRadius = 0;
+    };
+    Square.prototype = Ball.prototype;
+
+    var shapes = [];
+    window.addEventListener('load', function(event) { // When the page loads
+    	document.addEventListener('shapeHover', function(event) {
+    		shapes.forEach(function(shape) {
+    			if (shape != event.detail.shape) {
+    				shape.bg = event.detail.bg;
+    			}
+    		});
+    	})
+        // Make 10 shapes;
+        for (var i = 0; i < 10; i++) {
+        	var r = Math.random()*100;
+        	var x = Math.random()*90 + '%';
+        	var y = Math.random()*90 + '%';
+        	var shape = Math.random() < 0.5 ? new Ball(r,x,y) : new Square(r,x,y)
+        	shapes.push(new Ball());
+        }
+    });
+    </script>
+</body>
+
+</html>
